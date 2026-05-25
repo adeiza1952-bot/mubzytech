@@ -1617,10 +1617,20 @@ a{touch-action:manipulation;}
       </div>
       <div class="cert-id" id="certId" style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#aaa;margin-top:1.5rem;"></div>
     </div>
-    <div style="text-align:center;margin-top:1.5rem;">
-      <button class="btn btn-blue" id="certDownloadBtn" onclick="downloadCertificate()" style="display:none;">⬇️ Download Certificate</button>
-      <button class="btn btn-blue" id="certPayBtn" onclick="openPaymentModal()" style="display:none;">💳 Pay to Download Certificate</button>
-      <p style="color:var(--grey);font-size:0.78rem;margin-top:0.8rem;font-family:'Space Mono',monospace;" id="certHintText">Complete all lessons in a course to earn your certificate</p>
+    <!-- Contact flow shown after verified completion — see showCertificate() -->
+    <div id="certContactFlow" style="display:none;margin-top:1.5rem;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.25);border-radius:12px;padding:1.8rem;text-align:left;">
+      <p style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--green);margin-bottom:0.8rem;letter-spacing:0.06em;">// NEXT STEP</p>
+      <p style="font-size:0.88rem;color:var(--white);line-height:1.75;margin-bottom:1rem;">To receive your certificate, please send:</p>
+      <ul style="list-style:none;padding:0;margin-bottom:1.2rem;display:flex;flex-direction:column;gap:0.45rem;">
+        <li style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--grey);display:flex;align-items:center;gap:0.5rem;"><span style="color:var(--green);">•</span> Your full name</li>
+        <li style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--grey);display:flex;align-items:center;gap:0.5rem;"><span style="color:var(--green);">•</span> Course title</li>
+        <li style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--grey);display:flex;align-items:center;gap:0.5rem;"><span style="color:var(--green);">•</span> Payment proof (if required)</li>
+      </ul>
+      <p style="font-size:0.85rem;color:var(--white);margin-bottom:1rem;">to the admin on <strong>WhatsApp</strong> or <strong>email</strong> for verification.</p>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <a href="https://wa.me/2348061423790" target="_blank" style="display:inline-flex;align-items:center;gap:0.6rem;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--green);text-decoration:none;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:8px;padding:0.7rem 1.1rem;transition:background 0.2s;" onmouseover="this.style.background='rgba(74,222,128,0.15)'" onmouseout="this.style.background='rgba(74,222,128,0.08)'">📱 WhatsApp: 08061423790</a>
+        <a href="mailto:mubzy29@gmail.com" style="display:inline-flex;align-items:center;gap:0.6rem;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--accent-light);text-decoration:none;background:rgba(26,79,216,0.08);border:1px solid rgba(26,79,216,0.25);border-radius:8px;padding:0.7rem 1.1rem;transition:background 0.2s;" onmouseover="this.style.background='rgba(26,79,216,0.15)'" onmouseout="this.style.background='rgba(26,79,216,0.08)'">✉️ Email: mubzy29@gmail.com</a>
+      </div>
     </div>
     <div id="certLocked" style="display:none;text-align:center;padding:2rem;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;margin-top:1rem;">
       <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
@@ -1631,79 +1641,7 @@ a{touch-action:manipulation;}
   </div>
 </div>
 
-<!-- ════════════════════════════
-     PAYMENT MODAL
-════════════════════════════ -->
-<div id="paymentModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:#0f1624;border:1px solid rgba(26,79,216,0.35);border-radius:16px;padding:2.2rem;max-width:420px;width:100%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;">
-    <button onclick="closePaymentModal()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:var(--grey);width:30px;height:30px;font-size:1rem;cursor:pointer;line-height:1;">✕</button>
-    <div style="font-size:2.8rem;text-align:center;margin-bottom:0.8rem;">🎓</div>
-    <h2 style="text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:0.3rem;">Unlock Your Certificate</h2>
-    <p style="text-align:center;color:var(--grey);font-size:0.83rem;margin-bottom:1.4rem;line-height:1.6;">Pay once, download forever. Share on LinkedIn or your CV.</p>
-
-    <!-- Price -->
-    <div style="background:rgba(26,79,216,0.1);border:1px solid rgba(26,79,216,0.25);border-radius:10px;padding:1.2rem;text-align:center;margin-bottom:1.2rem;">
-      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--grey);margin-bottom:0.3rem;letter-spacing:0.08em;">ONE-TIME FEE</div>
-      <div style="font-size:2.4rem;font-weight:800;color:var(--accent-light);letter-spacing:-1px;">₦2,000</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--grey);margin-top:0.3rem;">Lifetime access · Instantly downloadable after approval</div>
-    </div>
-
-    <!-- Payment details -->
-    <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:1.1rem;margin-bottom:1.2rem;">
-      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--green);margin-bottom:0.7rem;letter-spacing:0.06em;">TRANSFER TO</div>
-      <div style="display:flex;flex-direction:column;gap:0.45rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--grey);">Bank</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--white);font-weight:700;" id="payBankName">— Add your bank —</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--grey);">Account No.</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--accent-light);font-weight:700;letter-spacing:0.08em;" id="payAccNumber">— Add account no. —</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--grey);">Name</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--white);font-weight:700;" id="payAccName">— Add account name —</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- What you get -->
-    <ul style="list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.4rem;padding:0;">
-      <li style="font-family:'Space Mono',monospace;font-size:0.74rem;color:var(--grey);display:flex;align-items:center;gap:0.6rem;"><span style="color:var(--green);">✓</span> Official MUBZY TECH certificate</li>
-      <li style="font-family:'Space Mono',monospace;font-size:0.74rem;color:var(--grey);display:flex;align-items:center;gap:0.6rem;"><span style="color:var(--green);">✓</span> Your name, course &amp; verified ID</li>
-      <li style="font-family:'Space Mono',monospace;font-size:0.74rem;color:var(--grey);display:flex;align-items:center;gap:0.6rem;"><span style="color:var(--green);">✓</span> Downloadable PDF — keep it forever</li>
-      <li style="font-family:'Space Mono',monospace;font-size:0.74rem;color:var(--grey);display:flex;align-items:center;gap:0.6rem;"><span style="color:var(--green);">✓</span> Share on LinkedIn or your CV</li>
-    </ul>
-
-    <!-- Reference input -->
-    <div style="margin-bottom:0.9rem;">
-      <label style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--grey);display:block;margin-bottom:0.4rem;">Your Name (so we can find your payment)</label>
-      <input id="paymentSenderName" type="text" placeholder="e.g. Amara Johnson" style="width:100%;background:#070d1a;border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:0.75rem 1rem;color:var(--white);font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;box-sizing:border-box;transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.09)'"/>
-    </div>
-    <div style="margin-bottom:1rem;">
-      <label style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--grey);display:block;margin-bottom:0.4rem;">Transaction Reference / Narration</label>
-      <input id="paymentRef" type="text" placeholder="e.g. TRF/2026/0001234" style="width:100%;background:#070d1a;border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:0.75rem 1rem;color:var(--white);font-family:'Space Mono',monospace;font-size:0.8rem;outline:none;box-sizing:border-box;transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.09)'"/>
-    </div>
-    <div id="paymentMsg" style="display:none;border-radius:6px;padding:0.7rem 1rem;font-family:'Space Mono',monospace;font-size:0.76rem;margin-bottom:1rem;"></div>
-    <button id="payNowBtn" class="btn btn-blue btn-full" onclick="handleCertPayment()" style="font-size:0.85rem;">✅ I Have Paid — Submit for Approval</button>
-    <p style="text-align:center;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--grey);margin-top:0.9rem;opacity:0.7;">Your download will be unlocked once we verify your payment.<br>Usually approved within a few hours.</p>
-  </div>
-</div>
-
-<!-- ════════════════════════════
-     ADMIN CERT CONFIRM MODAL
-════════════════════════════ -->
-<div id="adminCertModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:#0f1624;border:1px solid rgba(26,79,216,0.3);border-radius:14px;padding:2rem;max-width:380px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
-    <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">🎓 Mark as Paid?</h3>
-    <p style="color:var(--grey);font-size:0.83rem;margin-bottom:1rem;line-height:1.6;" id="adminCertModalDesc">This will unlock the certificate download for this user.</p>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:0.9rem;margin-bottom:1.2rem;font-family:'Space Mono',monospace;font-size:0.74rem;color:var(--grey);line-height:1.9;" id="adminCertModalInfo"></div>
-    <div style="display:flex;gap:0.7rem;">
-      <button class="btn btn-outline btn-sm" onclick="closeAdminCertModal()" style="flex:1;justify-content:center;">Cancel</button>
-      <button class="btn btn-sm" id="adminCertConfirmBtn" onclick="confirmMarkCertPaid()" style="flex:1;justify-content:center;background:rgba(74,222,128,0.15);color:var(--green);border:1px solid rgba(74,222,128,0.3);">✓ Confirm &amp; Unlock</button>
-    </div>
-  </div>
-</div>
+<!-- Payment modal and admin cert modal removed — replaced by manual contact flow -->
 
 <!-- ════════════════════════════
      DASHBOARD PAGE
@@ -1832,7 +1770,7 @@ a{touch-action:manipulation;}
               <th>Course</th>
               <th>Progress</th>
               <th>Joined</th>
-              <th>Cert</th>
+              <th>Done</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -3719,15 +3657,10 @@ function renderUsersTable(users) {
     var pct = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
     var pctColor = pct === 100 ? 'var(--green)' : pct > 50 ? 'var(--accent-light)' : 'var(--grey)';
 
-    // Cert payment status
-    var certPaid = u.certPaid === true;
-    var certRef  = u.certPaymentRef || '';
-    var senderName = u.certSenderName || '';
-    var certCell = certPaid
-      ? '<span style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:var(--green);background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:4px;padding:0.2rem 0.55rem;">✓ PAID</span>'
-      : (certRef
-          ? '<button style="font-family:\'Space Mono\',monospace;font-size:0.65rem;background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:0.2rem 0.55rem;cursor:pointer;" onclick="openAdminCertModal(\'' + u.uid + '\',\'' + escAdm(u.firstName+' '+u.lastName) + '\',\'' + escAdm(certRef) + '\',\'' + escAdm(senderName) + '\')">⏳ Verify</button>'
-          : '<span style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:var(--grey);">—</span>');
+    // Cert column: show completion percentage only (no payment states)
+    var certCell = pct === 100
+      ? '<span style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:var(--green);background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:4px;padding:0.2rem 0.55rem;">✓ DONE</span>'
+      : '<span style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:var(--grey);">—</span>';
 
     rows += '<tr>' +
       '<td style="color:var(--grey);font-family:\'Space Mono\',monospace;font-size:0.7rem;">' + (i+1) + '</td>' +
@@ -3980,160 +3913,11 @@ function showLeaderboard() {
 /* showCertificate is defined once below */
 
 // ══════════════════════════════════════
-// CERTIFICATE PAYMENT GATE
+// CERTIFICATE PAYMENT / DOWNLOAD — REMOVED
+// All payment handling, download logic, and admin cert approval
+// have been removed. Certificate flow is now manual contact only.
+// See showCertificate() for the new flow.
 // ══════════════════════════════════════
-
-// ── Payment details — update these with your real info ──
-var CERT_BANK_NAME    = 'PalmPay';
-var CERT_ACC_NUMBER   = '8061423790';
-var CERT_ACC_NAME     = 'Mubarak Ibrahim';
-
-function openPaymentModal() {
-  var modal = document.getElementById('paymentModal');
-  if (!modal) return;
-  // Inject your payment details into the modal
-  var bankEl = document.getElementById('payBankName');
-  var accEl  = document.getElementById('payAccNumber');
-  var nameEl = document.getElementById('payAccName');
-  if (bankEl) bankEl.textContent = CERT_BANK_NAME;
-  if (accEl)  accEl.textContent  = CERT_ACC_NUMBER;
-  if (nameEl) nameEl.textContent = CERT_ACC_NAME;
-  // Reset form
-  document.getElementById('paymentRef').value = '';
-  document.getElementById('paymentSenderName').value = '';
-  var msg = document.getElementById('paymentMsg');
-  if (msg) msg.style.display = 'none';
-  var btn = document.getElementById('payNowBtn');
-  if (btn) { btn.disabled = false; btn.textContent = '✅ I Have Paid — Submit for Approval'; }
-  modal.style.display = 'flex';
-}
-
-function closePaymentModal() {
-  var modal = document.getElementById('paymentModal');
-  if (modal) modal.style.display = 'none';
-}
-
-function handleCertPayment() {
-  var ref    = (document.getElementById('paymentRef').value || '').trim();
-  var sender = (document.getElementById('paymentSenderName').value || '').trim();
-  var msg    = document.getElementById('paymentMsg');
-  var btn    = document.getElementById('payNowBtn');
-  var user   = auth.currentUser;
-
-  function showPayMsg(text, type) {
-    msg.style.cssText = 'display:block;border-radius:6px;padding:0.7rem 1rem;font-family:Space Mono,monospace;font-size:0.76rem;margin-bottom:1rem;' +
-      (type === 'error'
-        ? 'background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#ef4444;'
-        : 'background:rgba(26,79,216,0.08);border:1px solid rgba(26,79,216,0.2);color:var(--accent-light);');
-    msg.textContent = text;
-  }
-
-  if (!sender) { showPayMsg('⚠️ Please enter your name so we can find your payment.', 'error'); return; }
-  if (!ref)    { showPayMsg('⚠️ Please enter your transaction reference or narration.', 'error'); return; }
-  if (!user)   { closePaymentModal(); showPage('login'); return; }
-
-  btn.disabled = true;
-  btn.textContent = '⏳ Submitting...';
-  showPayMsg('Saving your payment details...', 'info');
-
-  db.collection('users').doc(user.uid).update({
-    certPaymentRef:    ref,
-    certSenderName:    sender,
-    certPaymentPendingAt: new Date().toISOString(),
-    certPaid:          false   // stays false until admin approves
-  }).then(function() {
-    closePaymentModal();
-    var hint = document.getElementById('certHintText');
-    if (hint) hint.textContent = '⏳ Payment submitted — awaiting approval. Check back soon!';
-    showToast('✅ Payment details submitted! We will verify and unlock your certificate shortly.', 'success');
-  }).catch(function(err) {
-    btn.disabled = false;
-    btn.textContent = '✅ I Have Paid — Submit for Approval';
-    showPayMsg('⚠️ Could not submit. Please try again or contact support.', 'error');
-    console.error('certPayment submit error:', err);
-  });
-}
-
-// ── Admin cert modal ──
-var _adminCertPendingUid = null;
-
-function openAdminCertModal(uid, userName, ref, senderName) {
-  _adminCertPendingUid = uid;
-  var desc = document.getElementById('adminCertModalDesc');
-  var info = document.getElementById('adminCertModalInfo');
-  if (desc) desc.textContent = 'Unlock the certificate download for ' + userName + '?';
-  if (info) info.innerHTML =
-    'User: <strong style="color:var(--white);">' + userName + '</strong><br>' +
-    'Sender name: <strong style="color:var(--white);">' + (senderName || '—') + '</strong><br>' +
-    'Ref / Narration: <strong style="color:var(--accent-light);">' + (ref || '—') + '</strong>';
-  var modal = document.getElementById('adminCertModal');
-  if (modal) modal.style.display = 'flex';
-}
-
-function closeAdminCertModal() {
-  _adminCertPendingUid = null;
-  var modal = document.getElementById('adminCertModal');
-  if (modal) modal.style.display = 'none';
-}
-
-function confirmMarkCertPaid() {
-  var uid = _adminCertPendingUid;
-  if (!uid) return;
-  var btn = document.getElementById('adminCertConfirmBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
-
-  db.collection('users').doc(uid).update({
-    certPaid:   true,
-    certPaidAt: new Date().toISOString()
-  }).then(function() {
-    closeAdminCertModal();
-    showToast('✅ Certificate unlocked for user.', 'success');
-    // Refresh admin table
-    renderAdmin();
-  }).catch(function(err) {
-    if (btn) { btn.disabled = false; btn.textContent = '✓ Confirm & Unlock'; }
-    showToast('⚠️ Failed to update. Check Firestore rules.', 'error');
-    console.error('markCertPaid error:', err);
-  });
-}
-
-// ══════════════════════════════════════
-// SHOW CERTIFICATE (payment-gated)
-// ══════════════════════════════════════
-function downloadCertificate() {
-  var cert = document.getElementById('certificateBox');
-  // Use browser print to save as PDF
-  var printWin = window.open('', '_blank');
-  printWin.document.write('<html><head><title>MUBZY TECH Certificate</title>');
-  printWin.document.write('<style>');
-  printWin.document.write('body{margin:0;padding:20px;font-family:Georgia,serif;background:#f5f5f5;}');
-  printWin.document.write('.certificate{background:#fff;color:#111;border-radius:12px;padding:3rem;text-align:center;border:8px solid #0d1b3e;max-width:700px;margin:0 auto;}');
-  printWin.document.write('.cert-logo{font-family:Arial Black,sans-serif;font-size:1.8rem;font-weight:900;color:#0d1b3e;}');
-  printWin.document.write('.cert-logo span{color:#1a4fd8;}');
-  printWin.document.write('.cert-name{font-size:2rem;font-weight:900;color:#0d1b3e;border-bottom:2px solid #1a4fd8;display:inline-block;padding-bottom:4px;}');
-  printWin.document.write('.cert-course{font-size:1.3rem;font-style:italic;color:#1a4fd8;margin:1rem 0;}');
-  printWin.document.write('.cert-footer{display:flex;justify-content:space-between;margin-top:2rem;padding-top:1rem;border-top:1px solid #e0e0e0;}');
-  printWin.document.write('.sig-line{width:120px;border-bottom:1.5px solid #333;margin-bottom:4px;}');
-  printWin.document.write('</style></head><body>');
-  printWin.document.write('<div class="certificate">');
-  printWin.document.write('<div class="cert-logo">MUBZY<span>TECH</span></div>');
-  printWin.document.write('<hr style="width:80px;border-color:#1a4fd8;margin:12px auto;">');
-  printWin.document.write('<p style="letter-spacing:3px;text-transform:uppercase;font-size:0.85rem;color:#666;">Certificate of Completion</p>');
-  printWin.document.write('<p>This is to certify that</p>');
-  printWin.document.write('<div class="cert-name">' + document.getElementById('certName').textContent + '</div>');
-  printWin.document.write('<p style="margin-top:1rem;">has successfully completed the course</p>');
-  printWin.document.write('<div class="cert-course">' + document.getElementById('certCourse').textContent + '</div>');
-  printWin.document.write('<p style="font-size:0.82rem;color:#666;max-width:400px;margin:0 auto;">This certificate is awarded in recognition of dedication, hard work, and the successful completion of all lessons and assessments in the MUBZY TECH learning programme.</p>');
-  printWin.document.write('<p style="font-size:0.72rem;color:#888;margin-top:1rem;">' + document.getElementById('certDate').textContent + '</p>');
-  printWin.document.write('<div class="cert-footer">');
-  printWin.document.write('<div><div class="sig-line"></div><div style="font-size:0.7rem;">Mubarak</div><div style="font-size:0.7rem;color:#999;">Founder, MUBZY TECH</div></div>');
-  printWin.document.write('<div style="font-size:2rem;">🏆</div>');
-  printWin.document.write('<div><div class="sig-line"></div><div style="font-size:0.7rem;">MUBZY TECH</div><div style="font-size:0.7rem;color:#999;">Official Seal</div></div>');
-  printWin.document.write('</div></div>');
-  printWin.document.write('</body></html>');
-  printWin.document.close();
-  setTimeout(function() { printWin.print(); }, 500);
-}
 
 // ══════════════════════════════════════
 // LEADERBOARD
@@ -4191,14 +3975,19 @@ function renderLeaderboard() {
 }
 
 // ══════════════════════════════════════
-// CERTIFICATE
+// CERTIFICATE — Manual Contact Flow
 // ══════════════════════════════════════
+// Completion is verified ONLY via Firestore.
+// No localStorage fallback. No payment gate. No download button.
+// When completed === totalLessons: show certificate preview + contact instructions.
+// Otherwise: show locked state.
 function showCertificate(courseTitle) {
   var session = getSession();
   if (!session) { showPage('login'); return; }
 
-  var certBox  = document.getElementById('certificateBox');
-  var certLock = document.getElementById('certLocked');
+  var certBox     = document.getElementById('certificateBox');
+  var certLock    = document.getElementById('certLocked');
+  var certContact = document.getElementById('certContactFlow');
 
   // If called from dashboard button (no course arg), use enrolled course
   if (!courseTitle) {
@@ -4211,104 +4000,79 @@ function showCertificate(courseTitle) {
     if (COURSES[i].title === courseTitle) { enrolledCourse = COURSES[i]; break; }
   }
 
+  // Reset all sections to hidden before async check
+  if (certBox)     certBox.style.display     = 'none';
+  if (certLock)    certLock.style.display    = 'none';
+  if (certContact) certContact.style.display = 'none';
+
   if (!enrolledCourse) {
-    // No matching course — show locked
-    certBox.style.display = 'none';
     if (certLock) certLock.style.display = 'block';
     showPage('certificate');
     return;
   }
 
-  // ── FIRESTORE-ONLY VERIFICATION — tamper-proof certificate gate ──
-  // We NEVER trust localStorage or local progress state here.
-  // The certificate only renders if Firebase Auth confirms a live session
-  // AND Firestore confirms every single lesson is marked complete server-side.
+  // ── FIRESTORE-ONLY VERIFICATION — tamper-proof ──
+  // NEVER trust localStorage. Only Firestore is the source of truth.
   var firebaseUser = auth.currentUser;
   if (!firebaseUser || firebaseUser.uid !== session.uid) {
-    // Auth/session mismatch — refuse silently
     showPage('login');
     return;
   }
 
   showPage('certificate');
-  certBox.style.display = 'none';
-  if (certLock) certLock.style.display = 'none';
   var certLoading = document.getElementById('certLoading');
   if (certLoading) certLoading.style.display = 'block';
 
   db.collection('users').doc(firebaseUser.uid).get().then(function(doc) {
+    if (certLoading) certLoading.style.display = 'none';
+
     if (!doc.exists) {
-      if (certLoading) certLoading.style.display = 'none';
-      certBox.style.display = 'none';
       if (certLock) certLock.style.display = 'block';
       return;
     }
-    var data = doc.data() || {};
+
+    var data          = doc.data() || {};
     var courseProgress = (data.progress && data.progress[enrolledCourse.id]) || {};
-    var lessonsMap = courseProgress.lessons || {};
-    var completed = 0;
-    for (var j = 0; j < enrolledCourse.lessons.length; j++) {
+    var lessonsMap    = courseProgress.lessons || {};
+    var completed     = 0;
+    var totalLessons  = enrolledCourse.lessons.length;
+
+    // Strict Firestore-only count — no localStorage fallback
+    for (var j = 0; j < totalLessons; j++) {
       if (lessonsMap[j] === true) completed++;
     }
 
-    // Fallback: also check local progress in case Firestore is behind
-    if (completed < enrolledCourse.lessons.length) {
-      var localProgress = getProgress();
-      var localCourse   = (localProgress && localProgress[enrolledCourse.id]) || {};
-      var localLessons  = localCourse.lessons || {};
-      var localDone = 0;
-      for (var k = 0; k < enrolledCourse.lessons.length; k++) {
-        if (localLessons[k] === true) localDone++;
-      }
-      if (localDone > completed) completed = localDone;
-    }
-
-    var totalLessons = enrolledCourse.lessons.length;
-
-    if (certLoading) certLoading.style.display = 'none';
-    // Require ALL lessons complete AND course must have at least 1 lesson
-    if (completed >= totalLessons && totalLessons > 0) {
+    // Strict equality: completed MUST equal totalLessons
+    if (completed === totalLessons && totalLessons > 0) {
+      // Show certificate preview
       certBox.style.display = 'block';
       if (certLock) certLock.style.display = 'none';
-      var name = session.firstName + ' ' + session.lastName;
-      var date = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+      var name  = session.firstName + ' ' + session.lastName;
+      var date  = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
       var certId = 'MT-' + Date.now().toString(36).toUpperCase();
       document.getElementById('certName').textContent   = name;
       document.getElementById('certCourse').textContent = courseTitle;
       document.getElementById('certDate').textContent   = date;
       var certIdEl = document.getElementById('certId');
       if (certIdEl) certIdEl.textContent = 'Certificate ID: ' + certId;
-      logActivity('🎓 ' + session.firstName + ' earned a certificate for ' + courseTitle);
 
-      // ── PAYMENT GATE ──
-      var dlBtn  = document.getElementById('certDownloadBtn');
-      var payBtn = document.getElementById('certPayBtn');
-      var hint   = document.getElementById('certHintText');
-      var hasPaid    = data.certPaid === true;
-      var hasPending = !hasPaid && !!data.certPaymentRef;
-      if (hasPaid) {
-        if (dlBtn)  dlBtn.style.display  = 'inline-flex';
-        if (payBtn) payBtn.style.display = 'none';
-        if (hint)   hint.textContent     = 'Your certificate is unlocked — download it anytime.';
-      } else if (hasPending) {
-        if (dlBtn)  dlBtn.style.display  = 'none';
-        if (payBtn) payBtn.style.display = 'none';
-        if (hint)   hint.textContent     = '⏳ Payment submitted — awaiting approval. Check back soon!';
-      } else {
-        if (dlBtn)  dlBtn.style.display  = 'none';
-        if (payBtn) payBtn.style.display = 'inline-flex';
-        if (hint)   hint.textContent     = 'Make a one-time payment of ₦2,000 to download your certificate.';
-      }
+      // Show contact instructions
+      if (certContact) certContact.style.display = 'block';
+
+      logActivity('🎓 ' + session.firstName + ' completed ' + courseTitle + ' — certificate contact shown');
     } else {
-      certBox.style.display = 'none';
-      if (certLock) certLock.style.display = 'block';
+      // Not all lessons complete — show locked, never show certificate or contact
+      if (certBox)     certBox.style.display     = 'none';
+      if (certContact) certContact.style.display = 'none';
+      if (certLock)    certLock.style.display    = 'block';
     }
   }).catch(function(err) {
     console.error('Certificate check failed:', err);
-    var certLoading = document.getElementById('certLoading');
     if (certLoading) certLoading.style.display = 'none';
-    certBox.style.display = 'none';
-    if (certLock) certLock.style.display = 'block';
+    if (certBox)     certBox.style.display     = 'none';
+    if (certContact) certContact.style.display = 'none';
+    if (certLock)    certLock.style.display    = 'block';
   });
 }
 
