@@ -2674,6 +2674,20 @@ a{touch-action:manipulation;}
       <h3>👥 Registered Users</h3>
       <div style="margin-bottom:0.8rem;display:flex;gap:0.6rem;flex-wrap:wrap;">
         <input type="text" id="adminSearchInput" placeholder="Search by name or email..." oninput="filterAdminUsers()" style="background:#070d1a;border:1px solid rgba(255,255,255,0.09);border-radius:6px;padding:0.5rem 0.9rem;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:0.75rem;outline:none;flex:1;min-width:180px;transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.09)'"/>
+        <button class="btn btn-outline btn-sm" onclick="showAllEmails()" title="View and copy all user emails">📋 All Emails</button>
+      </div>
+
+      <!-- Email list panel — hidden by default -->
+      <div id="adminEmailPanel" style="display:none;background:#070d1a;border:1px solid rgba(59,111,250,0.3);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.7rem;flex-wrap:wrap;gap:0.5rem;">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent-light);">// ALL USER EMAILS</p>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-blue btn-sm" onclick="copyAllEmails()">📋 Copy All</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('adminEmailPanel').style.display='none'">✕ Close</button>
+          </div>
+        </div>
+        <div id="adminEmailList" style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--white);line-height:2;word-break:break-all;"></div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--grey);margin-top:0.8rem;">Tip: Copy all → paste into Gmail BCC field to message everyone at once.</p>
       </div>
       <div style="overflow-x:auto;">
         <table class="users-table">
@@ -4614,6 +4628,66 @@ function filterAdminUsers() {
     return name.indexOf(q) !== -1 || email.indexOf(q) !== -1;
   }) : users;
   renderUsersTable(filtered);
+}
+
+function showAllEmails() {
+  var panel   = document.getElementById('adminEmailPanel');
+  var listEl  = document.getElementById('adminEmailList');
+  if (!panel || !listEl) return;
+
+  var users  = _adminUsersCache || [];
+  var emails = users
+    .map(function(u) { return (u.email || '').trim(); })
+    .filter(function(e) { return e && e.indexOf('@') !== -1; });
+
+  if (emails.length === 0) {
+    listEl.innerHTML = '<span style="color:var(--grey);">No emails found. Make sure users are loaded first.</span>';
+  } else {
+    listEl.innerHTML = emails.map(function(e, i) {
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.2rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+        '<span style="color:var(--white);">' + (i+1) + '. ' + e + '</span>' +
+        '<button onclick="copySingleEmail(\'' + e.replace(/'/g,"\\'") + '\')" style="font-family:\'JetBrains Mono\',monospace;font-size:0.6rem;padding:0.15rem 0.5rem;background:rgba(26,79,216,0.15);color:var(--accent-light);border:1px solid rgba(26,79,216,0.25);border-radius:4px;cursor:pointer;flex-shrink:0;margin-left:0.5rem;">Copy</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function copySingleEmail(email) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(email).then(function() {
+      showToast('✅ Copied: ' + email, 'success');
+    }).catch(function() { _fallbackCopyText(email); });
+  } else { _fallbackCopyText(email); }
+}
+
+function copyAllEmails() {
+  var users  = _adminUsersCache || [];
+  var emails = users
+    .map(function(u) { return (u.email || '').trim(); })
+    .filter(function(e) { return e && e.indexOf('@') !== -1; })
+    .join(', ');
+
+  if (!emails) { showToast('No emails to copy.', 'error'); return; }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(emails).then(function() {
+      showToast('✅ All ' + (emails.split(',').length) + ' emails copied! Paste into Gmail BCC.', 'success');
+    }).catch(function() { _fallbackCopyText(emails); });
+  } else { _fallbackCopyText(emails); }
+}
+
+function _fallbackCopyText(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast('✅ Copied!', 'success'); }
+  catch(e) { showToast('Could not copy — please copy manually.', 'error'); }
+  document.body.removeChild(ta);
 }
 
 function renderUsersTable(users) {
