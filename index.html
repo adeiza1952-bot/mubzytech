@@ -1889,11 +1889,11 @@ a{touch-action:manipulation;}
       <div class="bank-details-card">
         <div class="bank-details-row">
           <span class="bd-label">Bank</span>
-          <span class="bd-value">Opay / Palmpay / GTBank</span>
+          <span class="bd-value">PalmPay</span>
         </div>
         <div class="bank-details-row">
           <span class="bd-label">Account Name</span>
-          <span class="bd-value">MUBARAK (MUBZY TECH)</span>
+          <span class="bd-value">Mubarak Ibrahim</span>
         </div>
         <div class="bank-details-row">
           <span class="bd-label">Account No.</span>
@@ -2018,7 +2018,7 @@ a{touch-action:manipulation;}
         <button class="btn-upgrade" style="width:100%;justify-content:center;padding:0.9rem;font-size:0.85rem;" id="pricingUpgradeBtn" onclick="openPaymentModal()">
           💳 Upgrade Now — ₦4,000
         </button>
-        <p style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:rgba(136,146,176,0.5);text-align:center;margin-top:0.7rem;">Bank transfer · Opay · Palmpay · GTBank · Activated in ~30 mins</p>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:rgba(136,146,176,0.5);text-align:center;margin-top:0.7rem;">Bank transfer via PalmPay · Activated in ~30 mins</p>
       </div>
     </div>
 
@@ -2028,7 +2028,7 @@ a{touch-action:manipulation;}
       <div style="display:flex;flex-direction:column;gap:1.2rem;">
         <div>
           <p style="font-size:0.88rem;font-weight:700;margin-bottom:0.3rem;">How do I pay?</p>
-          <p style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--grey);line-height:1.7;">Transfer ₦4,000 to our account (Opay/Palmpay/GTBank — 8061423790, MUBARAK), then send your receipt screenshot on WhatsApp: 08061423790.</p>
+          <p style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--grey);line-height:1.7;">Transfer ₦4,000 to our PalmPay account (8061423790, Mubarak Ibrahim), then send your receipt screenshot on WhatsApp: 08061423790.</p>
         </div>
         <div>
           <p style="font-size:0.88rem;font-weight:700;margin-bottom:0.3rem;">How fast is activation?</p>
@@ -4617,69 +4617,110 @@ function filterAdminUsers() {
 }
 
 function renderUsersTable(users) {
-  var tbody = document.getElementById('adminUsersBody');
+  var tbody   = document.getElementById('adminUsersBody');
   var noUsers = document.getElementById('adminNoUsers');
   if (!tbody) return;
-  if (users.length === 0) {
+
+  // Local escape helper (mirrors the global _esc — safe if called early)
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // Filter out any completely empty/corrupt documents
+  var validUsers = users.filter(function(u) {
+    return u && u.uid;
+  });
+
+  if (validUsers.length === 0) {
     tbody.innerHTML = '';
     if (noUsers) noUsers.style.display = 'block';
     return;
   }
   if (noUsers) noUsers.style.display = 'none';
-  var rows = '';
-  users.forEach(function(u, i) {
-    var joined = u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-GB') : 'N/A';
-    // Calculate total lessons completed
-    var totalLessons = 0;
-    var progress = u.progress || {};
-    Object.keys(progress).forEach(function(cId) {
-      var cp = progress[cId] || {};
-      var lessons = cp.lessons || {};
-      Object.keys(lessons).forEach(function(k) { if (lessons[k]) totalLessons++; });
-    });
-    // Find max lessons for enrolled course
-    var enrolled = u.course || '';
-    var enrolledCourse = null;
-    for (var ci = 0; ci < COURSES.length; ci++) {
-      if (COURSES[ci].title === enrolled) { enrolledCourse = COURSES[ci]; break; }
-    }
-    var courseKey = enrolledCourse ? enrolledCourse.id : '';
-    var courseTotal = enrolledCourse ? enrolledCourse.lessons.length : 0;
-    var courseDone = 0;
-    if (courseKey && progress[courseKey]) {
-      var ls = progress[courseKey].lessons || {};
-      Object.keys(ls).forEach(function(k) { if (ls[k]) courseDone++; });
-    }
-    var pct = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
-    var pctColor = pct === 100 ? 'var(--green)' : pct > 50 ? 'var(--accent-light)' : 'var(--grey)';
 
-    // Cert column: show completion percentage only (no payment states)
+  var rows = '';
+  validUsers.forEach(function(u, i) {
+    // ── SAFE FIELD READS with fallbacks ──
+    var firstName = u.firstName || u.name || '';
+    var lastName  = u.lastName  || '';
+    var fullName  = (firstName + ' ' + lastName).trim() || 'Unknown User';
+    var email     = u.email     || '—';
+    var course    = u.course    || '—';
+    var progress  = (u.progress && typeof u.progress === 'object') ? u.progress : {};
+
+    // ── JOINED DATE ──
+    var joined = '—';
+    if (u.joinedAt) {
+      try { joined = new Date(u.joinedAt).toLocaleDateString('en-GB'); }
+      catch(e) { joined = '—'; }
+    }
+
+    // ── PROGRESS CALCULATION ──
+    // Match enrolled course by title (handles capitalisation differences)
+    var enrolledCourse = null;
+    var courseLower    = (course).toLowerCase();
+    for (var ci = 0; ci < COURSES.length; ci++) {
+      if (COURSES[ci].title.toLowerCase() === courseLower ||
+          COURSES[ci].id === u.courseId) {
+        enrolledCourse = COURSES[ci];
+        break;
+      }
+    }
+
+    var courseTotal = enrolledCourse ? enrolledCourse.lessons.length : 0;
+    var courseDone  = 0;
+
+    if (enrolledCourse && progress[enrolledCourse.id]) {
+      var ls = progress[enrolledCourse.id].lessons || {};
+      Object.keys(ls).forEach(function(k) { if (ls[k] === true) courseDone++; });
+    } else if (enrolledCourse) {
+      // Try matching by course title as key (older data formats)
+      var altKey = enrolledCourse.title;
+      if (progress[altKey]) {
+        var ls2 = progress[altKey].lessons || {};
+        Object.keys(ls2).forEach(function(k) { if (ls2[k] === true) courseDone++; });
+      }
+    }
+
+    var pct      = courseTotal > 0 ? Math.round((courseDone / courseTotal) * 100) : 0;
+    var pctColor = pct === 100
+      ? 'var(--green)'
+      : pct > 50
+        ? 'var(--accent-light)'
+        : 'var(--grey)';
+
+    // ── CERT COLUMN ──
     var certCell = pct === 100
       ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;color:var(--green);background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:4px;padding:0.2rem 0.55rem;">✓ DONE</span>'
       : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;color:var(--grey);">—</span>';
 
-    // Premium column
-    var isPrem = u.isPremium === true;
+    // ── PREMIUM COLUMN ──
+    var isPrem   = u.isPremium === true;
+    var safeEmail = (email).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     var premCell = isPrem
-      ? '<button class="btn-grant-premium is-premium" title="Click to revoke premium" onclick="adminTogglePremium(\'' + u.uid + '\',\'' + (u.email||'').replace(/'/g,"\\'") + '\',false)">⭐ Premium</button>'
-      : '<button class="btn-grant-premium" title="Click to grant premium" onclick="adminTogglePremium(\'' + u.uid + '\',\'' + (u.email||'').replace(/'/g,"\\'") + '\',true)">+ Grant</button>';
+      ? '<button class="btn-grant-premium is-premium" title="Click to revoke premium" onclick="adminTogglePremium(\'' + u.uid + '\',\'' + safeEmail + '\',false)">⭐ Premium</button>'
+      : '<button class="btn-grant-premium" title="Click to grant premium" onclick="adminTogglePremium(\'' + u.uid + '\',\'' + safeEmail + '\',true)">+ Grant</button>';
+
+    // ── COURSE BADGE — truncate long names ──
+    var courseDisplay = course.length > 18 ? course.slice(0, 16) + '…' : course;
 
     rows += '<tr>' +
-      '<td style="color:var(--grey);font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;">' + (i+1) + '</td>' +
-      '<td><strong>' + (u.firstName||'') + ' ' + (u.lastName||'') + '</strong></td>' +
-      '<td style="color:var(--grey);font-size:0.78rem;">' + (u.email||'') + '</td>' +
-      '<td><span class="badge-course">' + (u.course||'N/A') + '</span></td>' +
+      '<td style="color:var(--grey);font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;">' + (i + 1) + '</td>' +
+      '<td><strong>' + esc(fullName) + '</strong></td>' +
+      '<td style="color:var(--grey);font-size:0.78rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + esc(email) + '">' + esc(email) + '</td>' +
+      '<td><span class="badge-course" title="' + esc(course) + '">' + esc(courseDisplay) + '</span></td>' +
       '<td><div style="display:flex;align-items:center;gap:0.5rem;">' +
-        '<div style="flex:1;background:rgba(255,255,255,0.06);border-radius:99px;height:5px;min-width:60px;overflow:hidden;"><div style="width:' + pct + '%;height:100%;border-radius:99px;background:' + pctColor + ';transition:width 0.4s;"></div></div>' +
+        '<div style="flex:1;background:rgba(255,255,255,0.06);border-radius:99px;height:5px;min-width:60px;overflow:hidden;">' +
+          '<div style="width:' + pct + '%;height:100%;border-radius:99px;background:' + pctColor + ';transition:width 0.4s;"></div>' +
+        '</div>' +
         '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.65rem;color:' + pctColor + ';min-width:28px;">' + pct + '%</span>' +
       '</div></td>' +
       '<td style="color:var(--grey);font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;">' + joined + '</td>' +
       '<td>' + certCell + '</td>' +
       '<td>' + premCell + '</td>' +
-      '<td><button class="btn-del" onclick="adminDeleteUser(\'' + u.uid + '\',\'' + u.email + '\')">Delete</button></td>' +
+      '<td><button class="btn-del" onclick="adminDeleteUser(\'' + u.uid + '\',\'' + safeEmail + '\')">Delete</button></td>' +
       '</tr>';
   });
-  tbody.innerHTML = rows;
+
+  tbody.innerHTML = rows || '<tr><td colspan="9" style="text-align:center;color:var(--grey);font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;padding:1.2rem;">No matching users found.</td></tr>';
 }
 
 function renderAdmin() {
@@ -4717,11 +4758,18 @@ function _renderAdminDashboard(currentUser, tokenResult) {
   document.getElementById('adminTotalActivity').textContent = activity.length;
 
   // Load real users from Firestore
-  db.collection('users').orderBy('joinedAt', 'desc').get()
+  db.collection('users').get()
     .then(function(snapshot) {
       var users = [];
       snapshot.forEach(function(doc) {
         users.push(Object.assign({ uid: doc.id }, doc.data()));
+      });
+
+      // Sort client-side so users without joinedAt are still included
+      users.sort(function(a, b) {
+        var da = a.joinedAt || '0';
+        var db_ = b.joinedAt || '0';
+        return da > db_ ? -1 : da < db_ ? 1 : 0;
       });
 
       // Save to local admin store for offline use
